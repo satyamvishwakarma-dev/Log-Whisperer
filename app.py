@@ -3,6 +3,9 @@ import os
 from flask import Flask, render_template, jsonify, request
 import google.generativeai as genai
 import random
+import pandas as pd
+from sklearn.ensemble import IsolationForest
+import re
 
 load_dotenv()
 
@@ -12,6 +15,40 @@ ai_cache = {} # Cache
 
 genai.configure(api_key=os.getenv("API_KEY"))
 model = genai.GenerativeModel('gemini-2.5-flash')
+
+def advanced_anomaly_detection(log_text):
+    lines = [line for line in log_text.split('\n') if line.strip()]
+    
+    # If the file is too small for ML, just find the word "error"
+    if len(lines) < 10:
+        worst_line = next((l for l in lines if 'error' in l.lower() or 'critical' in l.lower()), lines[-1])
+        return worst_line, 85
+
+    # 1. Feature Extraction (Turn text into numbers for the AI)
+    data = []
+    for line in lines:
+        length = len(line)
+        err_keywords = len(re.findall(r'(?i)(error|fail|critical|exception|timeout)', line))
+        data.append([length, err_keywords])
+        
+    df = pd.DataFrame(data, columns=['length', 'error_count'])
+
+    # 2. Train the Isolation Forest Model
+    model = IsolationForest(contamination=0.05, random_state=42)
+    model.fit(df)
+    
+    # 3. Score every line
+    df['anomaly_score'] = model.decision_function(df)
+    
+    # 4. Find the absolute worst log line
+    worst_idx = df['anomaly_score'].idxmin()
+    worst_line = lines[worst_idx]
+    
+    # Convert the ML score into a 0-100 percentage for your dashboard
+    math_score = float(df.loc[worst_idx, 'anomaly_score'])
+    dashboard_score = min(99, int(abs(math_score) * 150 + 50)) 
+
+    return worst_line, dashboard_score
 
 @app.route('/')
 def index():
@@ -26,10 +63,43 @@ def upload_file():
     file = request.files['file']
     log_content = file.read().decode('utf-8')
     
-    # Grab the last 1000 characters so we don't overload the AI
-    snippet = log_content[-1000:] 
+    # Run the advanced ML detector!
+    worst_log, calculated_score = advanced_anomaly_detection(log_content)
 
-    return run_ai_analysis(snippet)
+    print("\n" + "="*60)
+    print(f"ML CHOSE THIS LINE: {worst_log}")
+    print("="*60 + "\n")
+    
+    # Send the real anomaly to Gemini for the Root Cause Analysis
+    prompt = f"""
+    Act as a DevOps AI. Find the error in this log and give a short Root Cause and a 2-step Fix. 
+    Format exactly like this (put each step on a new line):
+    Root Cause: [text]
+    Fix: 
+    1. [Step 1]
+    2. [Step 2]
+    
+    Log: {worst_log}
+    """
+    
+    try:
+        response = model.generate_content(prompt)
+        parts = response.text.split('Fix:')
+        root_cause = parts[0].replace('Root Cause:', '').strip()
+        fix = parts[1].strip() if len(parts) > 1 else "Investigate manually."
+    except Exception as e:
+        root_cause = "API Error"
+        fix = str(e)
+
+    return jsonify({
+        "anomaly_score": calculated_score, # Now using REAL math!
+        "alerts": calculated_score // 20, 
+        "logs_ingested": "1 File",
+        "log": worst_log, 
+        "root_cause": root_cause,
+        "fix": fix
+    })
+    
 
 # --- 2. The Simulate Route ---
 @app.route('/api/simulate')
