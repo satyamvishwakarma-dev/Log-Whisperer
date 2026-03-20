@@ -11,7 +11,7 @@
     <div class="container">
         
         <aside class="sidebar">
-            <h2>LOG-WHISPERER</h2>
+            <h3>LOG-WHISPERER</h3>
             <ul id="nav-menu">
                 <li class="active" data-target="dashboard-view">Dashboard</li>
                 <li data-target="incidents-view">Incidents</li>
@@ -23,18 +23,25 @@
         <main class="main-content">
             
             <div id="dashboard-view" class="view-section active-view">
-                <div class="header-actions">
-                    <button id="simulate-btn" class="action-btn">🚨 Simulate Crash & Run AI</button>
+                
+                <div class="header-actions" style="display: flex; gap: 15px; justify-content: flex-end; margin-bottom: 20px;">
+                    <input type="file" id="log-upload" accept=".txt,.log" style="display: none;">
+                    <label for="log-upload" style="background-color: #38bdf8; color: #0f172a; cursor: pointer; padding: 10px 20px; border-radius: 5px; font-weight: bold; font-family: sans-serif; display: inline-block; transition: 0.2s;">
+                        📂 Upload Real Log
+                    </label>
+                    <button id="simulate-btn" class="action-btn" style="background-color: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s;">
+                        🚨 Simulate Crash & Run AI
+                    </button>
                 </div>
 
                 <div class="top-cards">
-                    <div class="card">Logs Ingested<br><span id="ingested" class="big-text">...</span></div>
-                    <div class="card">Anomaly Score<br><span id="score" class="big-text">...</span>%</div>
-                    <div class="card" id="alert-card">Active Alerts<br><span id="alerts" class="big-text">...</span></div>
-                </div>
+                    <div class="card">Logs Ingested<br><span id="ingested" class="big-text">1.2M/min</span></div>
+                    <div class="card">Risk Probability<br><span id="score" class="big-text">12</span>%</div>
+                    <div class="card" id="alert-card">Active Alerts<br><span id="alerts" class="big-text">0</span></div>
+                </div> 
 
                 <div class="chart-container">
-                    <h3>Real-Time Anomaly Timeline</h3>
+                    <h3>Real-Time System Risk</h3>
                     <div id="anomalyChart"></div>
                 </div>
 
@@ -44,6 +51,7 @@
                         <span class="timestamp">Live</span> <span id="latest-log">System running normally. Monitoring logs...</span>
                     </div>
                 </div>
+
             </div>
 
             <div id="incidents-view" class="view-section"><h2>Active Incidents</h2><p>No active incidents.</p></div>

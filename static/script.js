@@ -78,3 +78,58 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     });
 });
+
+// --- 4. File Upload Logic ---
+    const fileInput = document.getElementById('log-upload');
+    
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Change button text to show loading
+        const label = document.querySelector('label[for="log-upload"]');
+        const originalText = label.innerHTML;
+        label.innerHTML = "⏳ Analyzing...";
+
+        // Send file to Flask
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update UI with the real file data
+            document.getElementById('score').innerText = data.anomaly_score;
+            document.getElementById('alerts').innerText = data.alerts;
+            
+            document.getElementById('alerts').classList.add('error-text');
+            document.getElementById('alert-card').classList.add('error-card');
+            
+            const logBox = document.getElementById('log-box');
+            logBox.classList.add('critical');
+            document.getElementById('latest-log').innerText = data.log;
+            document.getElementById('latest-log').classList.add('error-text');
+
+            document.getElementById('root-cause').innerText = data.root_cause;
+            document.getElementById('root-cause').style.color = '#f87171';
+            
+            // This replace regex handles the line breaks for the bullet points!
+            document.getElementById('fix').innerHTML = data.fix.replace(/\n/g, '<br>');
+            document.getElementById('fix').style.color = '#cbd5e1';
+
+            chart.updateSeries([{ data: [5, 12, 8, 15, 10, 14, data.anomaly_score] }]);
+            chart.updateOptions({ colors: ['#ef4444'] });
+
+            // Reset button
+            label.innerHTML = originalText;
+            fileInput.value = ''; // clear input
+        })
+        .catch(err => {
+            console.error(err);
+            label.innerHTML = "Error!";
+            setTimeout(() => label.innerHTML = originalText, 2000);
+        });
+    });
