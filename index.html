@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Log-Whisperer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+<body>
+    <div class="container">
+        
+        <aside class="sidebar">
+            <h2>LOG-WHISPERER</h2>
+            <ul>
+                <li class="active">Dashboard</li>
+                <li>Incidents</li>
+                <li>Reports</li>
+                <li>Logs</li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-cards">
+                <div class="card">Logs Ingested<br><span id="ingested" class="big-text">Loading...</span></div>
+                <div class="card">Anomaly Score<br><span id="score" class="big-text">...</span>%</div>
+                <div class="card error-card">Active Alerts<br><span id="alerts" class="big-text error-text">...</span></div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Real-Time Anomaly Timeline</h3>
+                <div id="anomalyChart"></div>
+            </div>
+
+            <div class="log-feed">
+                <h3>Anomalous Logs Feed</h3>
+                <div class="log-entry"><span class="timestamp">14:12:35</span> <span id="latest-log" class="error-text">Loading...</span></div>
+            </div>
+        </main>
+
+        <aside class="right-panel">
+            <h3>Crash Report: Incident #CR-1102</h3>
+            <div class="crash-details">
+                <p><strong>Root Cause:</strong> <br><span id="root-cause">Loading...</span></p>
+                <hr>
+                <p><strong>Recommended Fix:</strong><br>1. Increase DB Connection Pool Size to 500.<br>2. Investigate long-running queries.</p>
+            </div>
+        </aside>
+
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

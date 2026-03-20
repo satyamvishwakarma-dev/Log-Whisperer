@@ -1,32 +1,22 @@
-import streamlit as st
-from analyzer import analyze_logs
+from flask import Flask, render_template, jsonify
+import random
 
-st.set_page_config(page_title="Log Whisperer", layout="wide")
+app = Flask(__name__)
 
-st.title("Log Whisperer")
-# st.subheader("AI-Driven Real-Time Log Anomaly & Root Cause Detector")
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-# File Upload
-uploaded_file = st.file_uploader("Upload System Logs", type=["txt", "log"])
+# This is where your JS will pull real-time updates
+@app.route('/api/data')
+def get_data():
+    return jsonify({
+        "anomaly_score": random.randint(10, 99),
+        "active_alerts": random.randint(1, 5),
+        "logs_ingested": "4.2M/min",
+        "latest_log": "CRITICAL: Nginx worker_connections exceeded... Error: connection pool exhausted.",
+        "root_cause": "Memory Leak in Database Connection Pool (Postgres)"
+    })
 
-if uploaded_file is not None:
-    # Decode and split logs
-    logs_raw = uploaded_file.getvalue().decode("utf-8")
-    log_lines = logs_raw.splitlines()
-    
-    st.success(f"Successfully loaded {len(log_lines)} log lines.")
-    
-    # Display preview
-    with st.expander("View Log Preview"):
-        st.code("\n".join(log_lines[:50]) + "\n...", language="bash")
-        
-    # Trigger Analysis
-    if st.button("Detect Anomalies & Generate Crash Report", type="primary"):
-        with st.spinner("Finding the issues..."):
-            log_chunk = "\n".join(log_lines[-100:]) 
-            
-            report = analyze_logs(log_chunk)
-            
-            st.divider()
-            st.subheader("Crash Report")
-            st.markdown(report)
+if __name__ == '__main__':
+    app.run(debug=True)

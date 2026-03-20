@@ -1,0 +1,89 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #0f172a; /* Deep dark blue/gray */
+    color: #cbd5e1;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 220px 1fr 320px;
+    height: 100vh;
+}
+
+.sidebar, .right-panel {
+    background-color: #1e293b;
+    padding: 20px;
+    border-right: 1px solid #334155;
+}
+
+.right-panel {
+    border-right: none;
+    border-left: 1px solid #334155;
+}
+
+.main-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.top-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.card, .chart-container, .log-feed, .crash-details {
+    background-color: #1e293b;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+}
+
+.big-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+.error-card {
+    border: 1px solid #ef4444;
+}
+
+.error-text {
+    color: #ef4444;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    padding: 12px 0;
+    cursor: pointer;
+    color: #94a3b8;
+}
+
+ul li.active {
+    color: #38bdf8;
+    font-weight: bold;
+}
+
+.log-entry {
+    background-color: #450a0a; /* Dark red background */
+    padding: 10px;
+    border-left: 4px solid #ef4444;
+    font-family: monospace;
+    font-size: 14px;
+}
+.timestamp {
+    color: #94a3b8;
+    margin-right: 10px;
+}
+
+hr {
+    border-color: #334155;
+}
