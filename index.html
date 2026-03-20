@@ -4,49 +4,75 @@
     <meta charset="UTF-8">
     <title>Log-Whisperer</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
+    <!-- <script src="script.js"></script> -->
 </head>
 <body>
     <div class="container">
         
         <aside class="sidebar">
             <h2>LOG-WHISPERER</h2>
-            <ul>
-                <li class="active">Dashboard</li>
-                <li>Incidents</li>
-                <li>Reports</li>
-                <li>Logs</li>
+            <ul id="nav-menu">
+                <li class="active" data-target="dashboard-view">Dashboard</li>
+                <li data-target="incidents-view">Incidents</li>
+                <li data-target="reports-view">Reports</li>
+                <li data-target="logs-view">Logs</li>
             </ul>
         </aside>
 
         <main class="main-content">
-            <div class="top-cards">
-                <div class="card">Logs Ingested<br><span id="ingested" class="big-text">Loading...</span></div>
-                <div class="card">Anomaly Score<br><span id="score" class="big-text">...</span>%</div>
-                <div class="card error-card">Active Alerts<br><span id="alerts" class="big-text error-text">...</span></div>
+            
+            <div id="dashboard-view" class="view-section active-view">
+                <div class="top-cards">
+                    <div class="card">Logs Ingested<br><span id="ingested" class="big-text">...</span></div>
+                    <div class="card">Anomaly Score<br><span id="score" class="big-text">...</span>%</div>
+                    <div class="card error-card">Active Alerts<br><span id="alerts" class="big-text error-text">...</span></div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Real-Time Anomaly Timeline</h3>
+                    <div id="anomalyChart"></div>
+                </div>
+
+                <div class="log-feed">
+                    <h3>Anomalous Logs Feed</h3>
+                    <div class="log-entry"><span class="timestamp">14:12:35</span> <span id="latest-log" class="error-text">...</span></div>
+                </div>
             </div>
 
-            <div class="chart-container">
-                <h3>Real-Time Anomaly Timeline</h3>
-                <div id="anomalyChart"></div>
+            <div id="incidents-view" class="view-section">
+                <h2>Active Incidents</h2>
+                <div class="card error-card">
+                    <p><strong>Incident #CR-1102</strong> - Status: Unresolved</p>
+                    <button>Acknowledge</button>
+                </div>
             </div>
 
-            <div class="log-feed">
-                <h3>Anomalous Logs Feed</h3>
-                <div class="log-entry"><span class="timestamp">14:12:35</span> <span id="latest-log" class="error-text">Loading...</span></div>
+            <div id="reports-view" class="view-section">
+                <h2>Historical AI Crash Reports</h2>
+                <div class="card">
+                    <p>No historical reports generated yet.</p>
+                </div>
             </div>
+
+            <div id="logs-view" class="view-section">
+                <h2>Raw Log Viewer</h2>
+                <div class="log-entry" style="background-color: #1e293b; border-left: 4px solid #38bdf8;">
+                    <span class="timestamp">14:12:30</span> INFO: User login successful.
+                </div>
+            </div>
+
         </main>
 
         <aside class="right-panel">
             <h3>Crash Report: Incident #CR-1102</h3>
             <div class="crash-details">
-                <p><strong>Root Cause:</strong> <br><span id="root-cause">Loading...</span></p>
+                <p><strong>Root Cause:</strong> <br><span id="root-cause">...</span></p>
                 <hr>
                 <p><strong>Recommended Fix:</strong><br>1. Increase DB Connection Pool Size to 500.<br>2. Investigate long-running queries.</p>
             </div>
         </aside>
 
     </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="script.js"></script>
 </body>
 </html>

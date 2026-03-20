@@ -87,3 +87,20 @@ ul li.active {
 hr {
     border-color: #334155;
 }
+
+/* Navigation View Toggles */
+.view-section {
+    display: none; /* Hide all views by default */
+    flex-direction: column;
+    gap: 20px;
+}
+
+.view-section.active-view {
+    display: flex; /* Only show the active one */
+}
+#nav-menu li.active { 
+    color: #38bdf8; 
+    font-weight: bold; 
+    border-left: 3px solid #38bdf8;
+    padding-left: 9px;
+}
