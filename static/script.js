@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById('root-cause').style.color = '#f87171'; // <-- ADD THIS LINE
                     
                     document.getElementById('fix').innerHTML = data.fix.replace(/\n/g, '<br>');
-                    document.getElementById('fix').style.color = '#f87171';
+                    document.getElementById('fix').style.color = '#ffffffff';
 
                     chart.updateSeries([{ data: [5, 12, 8, 15, 10, 14, data.anomaly_score] }]);
                     chart.updateOptions({ colors: ['#ef4444'] });
