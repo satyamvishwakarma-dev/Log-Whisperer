@@ -95,37 +95,48 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData = new FormData();
         formData.append('file', file);
 
+        // Read the file locally to display in the Logs tab
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('raw-logs-display').innerText = event.target.result;
+        };
+        reader.readAsText(file);
+
+        // Send file to Flask
         fetch('/api/upload', {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
-            // Update UI with the real file data
+            // Update Dashboard (Your existing code)
             document.getElementById('score').innerText = data.anomaly_score;
             document.getElementById('alerts').innerText = data.alerts;
-            
-            document.getElementById('alerts').classList.add('error-text');
-            document.getElementById('alert-card').classList.add('error-card');
-            
-            const logBox = document.getElementById('log-box');
-            logBox.classList.add('critical');
             document.getElementById('latest-log').innerText = data.log;
-            document.getElementById('latest-log').classList.add('error-text');
-
             document.getElementById('root-cause').innerText = data.root_cause;
-            document.getElementById('root-cause').style.color = '#f87171';
-            
-            // This replace regex handles the line breaks for the bullet points!
             document.getElementById('fix').innerHTML = data.fix.replace(/\n/g, '<br>');
-            document.getElementById('fix').style.color = '#cbd5e1';
+            
+            // --- NEW: Update Incidents Tab ---
+            document.getElementById('incidents-list').innerHTML = `
+                <div class="card" style="border-left: 4px solid #ef4444; margin-bottom: 15px;">
+                    <h3 style="color: #ef4444; margin-top: 0;">🚨 Critical Anomaly Detected</h3>
+                    <p><strong>Score:</strong> ${data.anomaly_score}%</p>
+                    <p style="color: #cbd5e1;"><strong>Culprit Log:</strong> ${data.log}</p>
+                </div>
+            ` + document.getElementById('incidents-list').innerHTML.replace('No active incidents.', '');
 
-            chart.updateSeries([{ data: [5, 12, 8, 15, 10, 14, data.anomaly_score] }]);
-            chart.updateOptions({ colors: ['#ef4444'] });
+            // --- NEW: Update Reports Tab ---
+            document.getElementById('reports-list').innerHTML = `
+                <div class="card" style="border-left: 4px solid #38bdf8; margin-bottom: 15px;">
+                    <h3 style="color: #38bdf8; margin-top: 0;">AI Analysis Report</h3>
+                    <p style="color: #f87171;"><strong>Root Cause:</strong> ${data.root_cause}</p>
+                    <p style="color: #cbd5e1;"><strong>Fix:</strong><br>${data.fix.replace(/\n/g, '<br>')}</p>
+                </div>
+            ` + document.getElementById('reports-list').innerHTML.replace('No reports generated yet.', '');
 
             // Reset button
             label.innerHTML = originalText;
-            fileInput.value = ''; // clear input
+            fileInput.value = ''; 
         })
         .catch(err => {
             console.error(err);
@@ -133,3 +144,25 @@ document.addEventListener("DOMContentLoaded", function() {
             setTimeout(() => label.innerHTML = originalText, 2000);
         });
     });
+// --- SIDEBAR NAVIGATION LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('#nav-menu li');
+    const viewSections = document.querySelectorAll('.view-section');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // 1. Remove the blue highlight from all sidebar items
+            navItems.forEach(nav => nav.classList.remove('active'));
+            
+            // 2. Add the blue highlight to the one you just clicked
+            this.classList.add('active');
+
+            // 3. Hide all the main pages
+            viewSections.forEach(view => view.style.display = 'none');
+
+            // 4. Find out which page to show, and display it!
+            const targetViewId = this.getAttribute('data-target');
+            document.getElementById(targetViewId).style.display = 'block';
+        });
+    });
+});

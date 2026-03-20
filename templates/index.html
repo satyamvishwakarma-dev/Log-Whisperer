@@ -54,9 +54,26 @@
 
             </div>
 
-            <div id="incidents-view" class="view-section"><h2>Active Incidents</h2><p>No active incidents.</p></div>
-            <div id="reports-view" class="view-section"><h2>Reports</h2><p>No reports generated yet.</p></div>
-            <div id="logs-view" class="view-section"><h2>Raw Logs</h2><p>Waiting for log file upload...</p></div>
+            <div id="incidents-view" class="view-section" style="display: none;">
+                <h2>Active Incidents</h2>
+                <div id="incidents-list">
+                    <p style="color: #94a3b8;">No active incidents.</p>
+                </div>
+            </div>
+
+            <div id="reports-view" class="view-section" style="display: none;">
+                <h2>AI Incident Reports</h2>
+                <div id="reports-list">
+                    <p style="color: #94a3b8;">No reports generated yet.</p>
+                </div>
+            </div>
+
+            <div id="logs-view" class="view-section" style="display: none;">
+                <h2>Raw Log Feed</h2>
+                <div style="background: #0f172a; padding: 15px; border-radius: 5px; overflow-y: auto; max-height: 600px;">
+                    <pre id="raw-logs-display" style="color: #cbd5e1; white-space: pre-wrap; word-wrap: break-word;">Upload a log file to view raw data.</pre>
+                </div>
+            </div>
         </main>
 
         <aside class="right-panel">
