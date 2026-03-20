@@ -4,7 +4,7 @@ from analyzer import analyze_logs
 st.set_page_config(page_title="Log Whisperer", layout="wide")
 
 st.title("Log Whisperer")
-st.subheader("AI-Driven Real-Time Log Anomaly & Root Cause Detector")
+# st.subheader("AI-Driven Real-Time Log Anomaly & Root Cause Detector")
 
 # File Upload
 uploaded_file = st.file_uploader("Upload System Logs", type=["txt", "log"])

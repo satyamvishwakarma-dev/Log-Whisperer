@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # The client automatically picks up the GEMINI_API_KEY environment variable
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=os.getenv("API_KEY"))
 
 def analyze_logs(log_text):
     prompt = f"""
