@@ -19,12 +19,12 @@ model = genai.GenerativeModel('gemini-2.5-flash')
 def advanced_anomaly_detection(log_text):
     lines = [line for line in log_text.split('\n') if line.strip()]
     
-    # If the file is too small for ML, just find the word "error"
+    # Fallback for tiny files
     if len(lines) < 10:
-        worst_line = next((l for l in lines if 'error' in l.lower() or 'critical' in l.lower()), lines[-1])
-        return worst_line, 85
+        worst = next((l for l in lines if 'error' in l.lower() or 'critical' in l.lower()), lines[-1])
+        return worst, [worst], 85
 
-    # 1. Feature Extraction (Turn text into numbers for the AI)
+    # 1. Feature Extraction
     data = []
     for line in lines:
         length = len(line)
@@ -33,22 +33,26 @@ def advanced_anomaly_detection(log_text):
         
     df = pd.DataFrame(data, columns=['length', 'error_count'])
 
-    # 2. Train the Isolation Forest Model
+    # 2. Train Model
     model = IsolationForest(contamination=0.05, random_state=42)
     model.fit(df)
-    
-    # 3. Score every line
     df['anomaly_score'] = model.decision_function(df)
     
-    # 4. Find the absolute worst log line
-    worst_idx = df['anomaly_score'].idxmin()
+    # 3. Sort by MOST anomalous (lowest score)
+    df_sorted = df.sort_values('anomaly_score')
+    
+    # 4. Get the Top 5 worst lines for the UI Feed
+    top_5_indices = df_sorted.head(5).index
+    top_anomalies = [lines[i] for i in top_5_indices]
+    
+    # 5. Grab the #1 worst line for the AI prompt
+    worst_idx = df_sorted.index[0]
     worst_line = lines[worst_idx]
     
-    # Convert the ML score into a 0-100 percentage for your dashboard
     math_score = float(df.loc[worst_idx, 'anomaly_score'])
     dashboard_score = min(99, int(abs(math_score) * 150 + 50)) 
 
-    return worst_line, dashboard_score
+    return worst_line, top_anomalies, dashboard_score
 
 @app.route('/')
 def index():
@@ -64,7 +68,7 @@ def upload_file():
     log_content = file.read().decode('utf-8')
     
     # Run the advanced ML detector!
-    worst_log, calculated_score = advanced_anomaly_detection(log_content)
+    worst_log, anomaly_list, calculated_score = advanced_anomaly_detection(log_content)
 
     print("\n" + "="*60)
     print(f"ML CHOSE THIS LINE: {worst_log}")
@@ -93,9 +97,10 @@ def upload_file():
 
     return jsonify({
         "anomaly_score": calculated_score, # Now using REAL math!
-        "alerts": calculated_score // 20, 
+        "alerts": len(anomaly_list), 
         "logs_ingested": "1 File",
         "log": worst_log, 
+        "anomaly_list": anomaly_list,
         "root_cause": root_cause,
         "fix": fix
     })
