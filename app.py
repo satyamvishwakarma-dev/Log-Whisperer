@@ -8,6 +8,8 @@ load_dotenv()
 
 app = Flask(__name__)
 
+ai_cache = {} # Cache
+
 genai.configure(api_key=os.getenv("API_KEY"))
 model = genai.GenerativeModel('gemini-2.5-flash')
 
@@ -36,7 +38,13 @@ def simulate():
     return run_ai_analysis(anomalous_log)
 
 # --- Core AI Logic (Updated Prompt for Bullet Points) ---
-def run_ai_analysis(log_text):
+def run_ai_analysis(worst_log, calculated_score=85):
+    # 1. THE SHIELD: Check if we already know the answer!
+    if worst_log in ai_cache:
+        print("🚀 Using cached AI response! (Saved an API call!)")
+        return jsonify(ai_cache[worst_log])
+
+    # 2. If it's new, ask Gemini
     prompt = f"""
     Act as a DevOps AI. Find the error in this log and give a short Root Cause and a 2-step Fix. 
     Format exactly like this (put each step on a new line):
@@ -45,7 +53,7 @@ def run_ai_analysis(log_text):
     1. [Step 1]
     2. [Step 2]
     
-    Log: {log_text}
+    Log: {worst_log}
     """
     
     try:
@@ -57,14 +65,20 @@ def run_ai_analysis(log_text):
         root_cause = "API Error"
         fix = str(e)
 
-    return jsonify({
-        "anomaly_score": random.randint(75, 99),
-        "alerts": random.randint(1, 5),
-        "logs_ingested": "4.2M/min",
-        "log": log_text[-150:], # Show a short snippet on the dashboard
+    # 3. Package the data
+    result_data = {
+        "anomaly_score": calculated_score, 
+        "alerts": calculated_score // 20, 
+        "logs_ingested": "1 File",
+        "log": worst_log, 
         "root_cause": root_cause,
         "fix": fix
-    })
+    }
+
+    # 4. THE SAVE: Store it in the memory bank for next time
+    ai_cache[worst_log] = result_data
+
+    return jsonify(result_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
